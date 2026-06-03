@@ -331,3 +331,119 @@ class SogouSearchSource(BaseSource):
         except Exception:
             pass
         return resources
+
+
+@register_source("baidu_search")
+class BaiduSearchSource(BaseSource):
+    """百度搜索 - 国内最常用的搜索引擎"""
+
+    name = "baidu_search"
+    display_name = "百度搜索"
+    base_url = "https://www.baidu.com"
+    backup_urls = []
+    encoding = "utf-8"
+
+    CLOUD_PATTERNS = {
+        'baidu': r'https?://pan\.baidu\.com/s/[a-zA-Z0-9_-]+',
+        'quark': r'https?://pan\.quark\.cn/s/[a-zA-Z0-9]+',
+        'magnet': r'magnet:\?xt=urn:btih:[a-fA-F0-9]{40}(?:&[a-zA-Z0-9_.=%-]+)*',
+    }
+
+    def search(self, keyword: str, quality: Optional[str] = None) -> List[SearchResult]:
+        resources = []
+        queries = [
+            f"{keyword} 网盘资源",
+            f"{keyword} 电影下载",
+        ]
+        if quality:
+            queries.insert(0, f"{keyword} {quality} 下载")
+
+        for query in queries[:2]:
+            anti_crawl.random_delay(1.0, 2.0)
+            try:
+                links_found = self._search_baidu(query)
+                resources.extend(links_found)
+            except Exception:
+                continue
+
+        seen = set()
+        unique = []
+        for r in resources:
+            if r.url not in seen:
+                seen.add(r.url)
+                unique.append(r)
+
+        if unique:
+            return [self.create_result(
+                movie_name=f"{keyword} - 百度搜索",
+                resources=unique,
+                source=self.display_name,
+            )]
+        return []
+
+    def _search_baidu(self, query: str) -> List[MovieResource]:
+        """在百度上搜索"""
+        resources = []
+        encoded = quote(query)
+
+        try:
+            # 先获取百度首页的Cookie
+            session = anti_crawl.create_httpx_client(timeout=15)
+            session.get("https://www.baidu.com", headers=anti_crawl.get_headers())
+
+            # 执行搜索
+            resp = session.get(
+                f"https://www.baidu.com/s?wd={encoded}",
+                headers=anti_crawl.get_headers(referer="https://www.baidu.com"),
+            )
+
+            if resp.status_code != 200:
+                return resources
+
+            html = resp.text
+
+            # 直接从搜索结果页提取链接
+            for provider, pattern in self.CLOUD_PATTERNS.items():
+                for match in re.finditer(pattern, html):
+                    link = match.group()
+                    rtype = {"baidu": MovieResourceType.BAIDU_CLOUD,
+                             "quark": MovieResourceType.QUARK_CLOUD,
+                             "magnet": MovieResourceType.MAGNET}.get(provider, MovieResourceType.MAGNET)
+                    resources.append(MovieResource(title="网盘资源", url=link, resource_type=rtype))
+
+            # 如果有结果链接，也爬取结果页
+            soup = BeautifulSoup(html, "lxml")
+            for a_tag in soup.select(".result a[href], h3 a[href], .t a[href]"):
+                href = a_tag.get("href", "")
+                if not href.startswith("http"):
+                    # 百度使用重定向
+                    if href.startswith("/"):
+                        href = "https://www.baidu.com" + href
+                    continue
+
+                if any(s in href for s in ["baidu.com", "sogou.com"]):
+                    continue
+
+                try:
+                    anti_crawl.random_delay(0.3, 1.0)
+                    resp2 = session.get(href, headers=anti_crawl.get_headers(referer=href))
+                    html2 = resp2.text
+
+                    for provider, pattern in self.CLOUD_PATTERNS.items():
+                        for match in re.finditer(pattern, html2):
+                            link = match.group()
+                            if link not in [r.url for r in resources]:
+                                rtype = {"baidu": MovieResourceType.BAIDU_CLOUD,
+                                         "quark": MovieResourceType.QUARK_CLOUD,
+                                         "magnet": MovieResourceType.MAGNET}.get(provider, MovieResourceType.MAGNET)
+                                resources.append(MovieResource(title="网盘资源", url=link, resource_type=rtype))
+                except Exception:
+                    continue
+
+                if len(resources) >= 10:
+                    break
+
+        except Exception:
+            pass
+
+        return resources

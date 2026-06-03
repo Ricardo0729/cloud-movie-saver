@@ -84,8 +84,9 @@ search:
     delay_min: 1.0
     rotate_ua: true
     use_curl_impersonate: true
-  concurrent: 5
-  max_retries: 3
+  timeout: 15
+  max_retries: 2
+  concurrent: 10
   min_quality: 720p
   prefer_quality: 1080p
   proxy:
@@ -94,18 +95,18 @@ search:
     https: ''
     socks5: ''
   source_priority:
+  - sogou
+  - bing
+  - baidu_search
+  - btdig
   - dytt
   - bttiantang
-  - btdig
   - ciligou
   - btcat
   - gaoding
-  - bing
-  - sogou
   - btbtdy
   - 6vhao
   - pianku
-  timeout: 30
 tmdb:
   api_key: ''
   enabled: false

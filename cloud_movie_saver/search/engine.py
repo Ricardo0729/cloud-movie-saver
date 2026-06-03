@@ -109,10 +109,11 @@ class SearchEngine:
             for result in results:
                 # 标记来源
                 result.source = source.display_name
-                # 过滤低画质资源
+                # 过滤低画质资源（保留未知画质的资源）
                 result.resources = [
                     r for r in result.resources
-                    if self._quality_score(r.quality) >= self._quality_score(self.min_quality)
+                    if r.quality == MovieQuality.UNKNOWN or
+                       self._quality_score(r.quality) >= self._quality_score(self.min_quality)
                 ]
             return [r for r in results if r.resources]
         except Exception as e:
