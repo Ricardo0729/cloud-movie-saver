@@ -13,7 +13,7 @@ for f in os.listdir(desktop):
 shell = win32com.client.Dispatch('WScript.Shell')
 shortcut = shell.CreateShortCut(shortcut_path)
 shortcut.Targetpath = sys.executable
-shortcut.Arguments = '-m cloud_movie_saver.main gui'
+shortcut.Arguments = 'launch_gui.py'
 shortcut.WorkingDirectory = project_dir
 shortcut.WindowStyle = 1
 shortcut.Description = 'CloudMovieSaver - 云盘电影搜索保存工具'

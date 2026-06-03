@@ -58,11 +58,11 @@ class CloudMovieSaverGUI:
 
         # 居中显示
         self.root.update_idletasks()
-        width = self.root.winfo_width()
-        height = self.root.winfo_height()
-        x = (self.root.winfo_screenwidth() // 2) - (width // 2)
-        y = (self.root.winfo_screenheight() // 2) - (height // 2)
-        self.root.geometry(f'{width}x{height}+{x}+{y}')
+        sw = self.root.winfo_screenwidth()
+        sh = self.root.winfo_screenheight()
+        x = (sw - 960) // 2
+        y = (sh - 720) // 2
+        self.root.geometry(f'960x720+{x}+{y}')
 
     def _build_ui(self):
         """构建界面"""
@@ -172,11 +172,12 @@ class CloudMovieSaverGUI:
                                   command=self.canvas.yview)
         self.scrollable_frame = tk.Frame(self.canvas, bg=self.COLORS['bg'])
 
+        self.canvas_window = self.canvas.create_window(
+            (0, 0), window=self.scrollable_frame, anchor='nw', tags='window')
         self.scrollable_frame.bind('<Configure>',
             lambda e: self.canvas.configure(scrollregion=self.canvas.bbox('all')))
-
-        self.canvas.create_window((0, 0), window=self.scrollable_frame, anchor='nw',
-                                  width=self.canvas.winfo_reqwidth)
+        self.canvas.bind('<Configure>',
+            lambda e: self.canvas.itemconfig('window', width=e.width) if self.canvas.winfo_exists() else None)
         self.canvas.configure(yscrollcommand=scrollbar.set)
 
         self.canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
