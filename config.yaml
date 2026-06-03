@@ -1,0 +1,148 @@
+# CloudMovieSaver 配置文件
+# ========================
+
+# 搜索配置
+search:
+  timeout: 30           # 请求超时（秒）
+  max_retries: 3        # 最大重试次数
+  concurrent: 5         # 并发搜索数量
+  min_quality: "720p"   # 最低画质: 480p, 720p, 1080p, 4k, bluray
+  prefer_quality: "1080p"  # 首选画质
+
+  # 来源站点优先级（越靠前越优先）
+  source_priority:
+    - dytt          # 电影天堂 - ED2K/磁力/电驴
+    - bttiantang    # BT搜索 - 磁力链接
+    - btdig         # BTDigg - 全球BT搜索引擎
+    - ciligou       # 磁力搜索 - 聚合BT引擎
+    - btcat         # BT猫 - 磁力链接
+    - gaoding       # 高清MP4 - 百度网盘资源
+    - bing          # Bing搜索 - 全网云盘链接
+    - sogou         # 搜狗搜索 - 全网云盘链接
+    - btbtdy        # BT电影站 - 磁力链接
+    - 6vhao         # 6v电影 - ED2K/FTP
+    - pianku        # 片库资源
+
+  # 代理配置（可选）
+  proxy:
+    enabled: false
+    http: ""         # HTTP代理 e.g. http://127.0.0.1:7890
+    https: ""        # HTTPS代理
+    socks5: ""       # SOCKS5代理 e.g. socks5://127.0.0.1:7890
+
+  # 反爬策略
+  anti_crawl:
+    delay_min: 1.0       # 最小延迟（秒）
+    delay_max: 3.0       # 最大延迟（秒）
+    rotate_ua: true      # 是否轮换User-Agent
+    use_curl_impersonate: true  # 使用curl_cffi模拟浏览器TLS指纹
+    cookies_dir: "./cookies"    # Cookie存储目录
+
+# 百度网盘配置
+baidu:
+  # BDUSS 和 STOKEN 从浏览器Cookie获取
+  # 获取方式: 登录百度网盘后，在浏览器开发者工具->Application->Cookies->pan.baidu.com
+  bduss: ""
+  stoken: ""
+  # 默认保存路径
+  save_path: "/已保存电影"
+  # 自动创建分类文件夹
+  auto_create_categories: true
+  # 是否启用百度网盘（如果不配置，只收集链接不自动保存）
+  enabled: false
+
+# 夸克网盘配置（Cookie方式）
+quark:
+  # 从浏览器Cookie获取 __quark__token__
+  cookie: ""
+  # 默认保存路径
+  save_path: "/已保存电影"
+  enabled: false
+
+# 迅雷网盘配置
+xunlei:
+  # 从浏览器Cookie获取
+  cookie: ""
+  # 默认保存路径
+  save_path: "/已保存电影"
+  enabled: false
+
+# TMDB API (用于电影分类和元数据)
+tmdb:
+  # 从 https://www.themoviedb.org/settings/api 获取
+  api_key: ""
+  language: "zh-CN"
+  enabled: false
+
+# 输出格式
+output:
+  show_magnet: true       # 显示磁力链接
+  show_ed2k: false        # 显示电驴链接
+  show_cloud: true        # 显示网盘链接
+  auto_open_browser: true # 搜索结果自动打开浏览器
+  max_results: 50         # 最大显示结果数
+
+# 电影分类映射
+categories:
+  动作:
+    - 动作
+    - 犯罪
+    - 警匪
+    - 武打
+    - 格斗
+    - 战争
+    - Action
+    - 枪战
+    - 黑帮
+  喜剧:
+    - 喜剧
+    - 搞笑
+    - 幽默
+    - Comedy
+    - 欢乐
+  爱情:
+    - 爱情
+    - 浪漫
+    - Romance
+    - 恋爱
+    - 情感
+  科幻:
+    - 科幻
+    - 奇幻
+    - Sci-Fi
+    - 幻想
+    - 魔幻
+    - 异世界
+    - 穿越
+  恐怖:
+    - 恐怖
+    - 惊悚
+    - Horror
+    - 悬疑
+    - 鬼怪
+    - 灵异
+    - 僵尸
+  动画:
+    - 动画
+    - Anime
+    - 动漫
+    - 卡通
+    - 动画电影
+  剧情:
+    - 剧情
+    - 文艺
+    - Drama
+    - 传记
+    - 历史
+    - 纪实
+  纪录片:
+    - 纪录片
+    - Documentary
+    - 纪录
+    - 纪实
+  悬疑:
+    - 悬疑
+    - 推理
+    - Mystery
+    - 烧脑
+    - 反转
