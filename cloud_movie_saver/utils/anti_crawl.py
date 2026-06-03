@@ -6,6 +6,8 @@ import asyncio
 import logging
 from typing import Optional, Dict, List
 
+import httpx
+
 # 抑制 fake_useragent 的烦人错误日志
 logging.getLogger('fake_useragent').setLevel(logging.ERROR)
 
@@ -139,6 +141,36 @@ class AntiCrawlManager:
             proxies["https://"] = socks5_proxy
 
         return proxies if proxies else None
+
+    def get_proxy_url(self) -> Optional[str]:
+        """获取代理URL字符串（用于httpx 0.28+的proxy参数）"""
+        if not config.get("search.proxy.enabled", False):
+            return None
+        socks5_proxy = config.get("search.proxy.socks5", "")
+        if socks5_proxy:
+            return socks5_proxy
+        http_proxy = config.get("search.proxy.http", "")
+        if http_proxy:
+            return http_proxy
+        https_proxy = config.get("search.proxy.https", "")
+        if https_proxy:
+            return https_proxy
+        return None
+
+    def create_httpx_client(self, **kwargs) -> httpx.Client:
+        """创建配置了代理的httpx客户端（兼容httpx 0.28+）"""
+        client_kwargs = {
+            "timeout": httpx.Timeout(30),
+            "follow_redirects": True,
+            "verify": False,
+        }
+        client_kwargs.update(kwargs)
+
+        proxy_url = self.get_proxy_url()
+        if proxy_url:
+            client_kwargs["proxy"] = proxy_url
+
+        return httpx.Client(**client_kwargs)
 
 
 # 全局单例

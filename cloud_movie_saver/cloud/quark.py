@@ -39,13 +39,10 @@ class QuarkCloud:
                 "Accept": "application/json, text/plain, */*",
                 "Accept-Language": "zh-CN,zh;q=0.9",
             }
-            proxies = anti_crawl.get_proxies()
-            self._session = httpx.Client(
+            self._session = anti_crawl.create_httpx_client(
                 timeout=httpx.Timeout(30.0),
                 follow_redirects=True,
                 headers=headers,
-                proxies=proxies,
-                verify=False,
             )
             # 设置cookie
             if self.cookie:

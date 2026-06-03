@@ -44,27 +44,23 @@ class BaseSource(abc.ABC):
 
     def _get_httpx_client(self) -> httpx.Client:
         """获取httpx客户端"""
-        proxies = anti_crawl.get_proxies()
-        client_kwargs = {
-            "timeout": httpx.Timeout(self.timeout),
-            "follow_redirects": True,
-            "headers": anti_crawl.get_headers(referer=self._current_base_url),
-        }
-        if proxies:
-            client_kwargs["proxies"] = proxies
-        return httpx.Client(**client_kwargs)
+        return anti_crawl.create_httpx_client(
+            timeout=httpx.Timeout(self.timeout),
+            follow_redirects=True,
+            headers=anti_crawl.get_headers(referer=self._current_base_url),
+        )
 
-    async def _get_httpx_client_async(self) -> httpx.AsyncClient:
-        """获取异步httpx客户端"""
-        proxies = anti_crawl.get_proxies()
-        client_kwargs = {
+    def _get_async_client_kwargs(self) -> dict:
+        """获取异步客户端参数"""
+        kwargs = {
             "timeout": httpx.Timeout(self.timeout),
             "follow_redirects": True,
             "headers": anti_crawl.get_headers(referer=self._current_base_url),
         }
-        if proxies:
-            client_kwargs["proxies"] = proxies
-        return httpx.AsyncClient(**client_kwargs)
+        proxy_url = anti_crawl.get_proxy_url()
+        if proxy_url:
+            kwargs["proxy"] = proxy_url
+        return kwargs
 
     def fetch(self, url: str, referer: Optional[str] = None,
               headers: Optional[Dict] = None) -> Optional[str]:
@@ -72,17 +68,20 @@ class BaseSource(abc.ABC):
         if headers is None:
             headers = anti_crawl.get_headers(referer=referer or self._current_base_url)
 
-        proxies = anti_crawl.get_proxies()
+        proxy_url = anti_crawl.get_proxy_url()
 
         for attempt in range(self.max_retries):
             try:
-                with httpx.Client(
-                    timeout=httpx.Timeout(self.timeout),
-                    follow_redirects=True,
-                    headers=headers,
-                    proxies=proxies,
-                    verify=False,
-                ) as client:
+                client_kwargs = {
+                    "timeout": httpx.Timeout(self.timeout),
+                    "follow_redirects": True,
+                    "headers": headers,
+                    "verify": False,
+                }
+                if proxy_url:
+                    client_kwargs["proxy"] = proxy_url
+
+                with httpx.Client(**client_kwargs) as client:
                     response = client.get(url)
                     response.encoding = self.encoding
                     if response.status_code == 200:
@@ -104,17 +103,20 @@ class BaseSource(abc.ABC):
         if headers is None:
             headers = anti_crawl.get_headers(referer=referer or self._current_base_url)
 
-        proxies = anti_crawl.get_proxies()
+        proxy_url = anti_crawl.get_proxy_url()
 
         for attempt in range(self.max_retries):
             try:
-                async with httpx.AsyncClient(
-                    timeout=httpx.Timeout(self.timeout),
-                    follow_redirects=True,
-                    headers=headers,
-                    proxies=proxies,
-                    verify=False,
-                ) as client:
+                client_kwargs = {
+                    "timeout": httpx.Timeout(self.timeout),
+                    "follow_redirects": True,
+                    "headers": headers,
+                    "verify": False,
+                }
+                if proxy_url:
+                    client_kwargs["proxy"] = proxy_url
+
+                async with httpx.AsyncClient(**client_kwargs) as client:
                     response = await client.get(url)
                     response.encoding = self.encoding
                     if response.status_code == 200:

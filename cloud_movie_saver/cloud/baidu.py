@@ -41,13 +41,10 @@ class BaiduCloud:
                 "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
                               "(KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
             })
-            proxies = anti_crawl.get_proxies()
-            self._session = httpx.Client(
+            self._session = anti_crawl.create_httpx_client(
                 timeout=httpx.Timeout(30.0),
                 follow_redirects=True,
                 headers=headers,
-                proxies=proxies,
-                verify=False,
             )
             # 设置Cookie
             if self.bduss:

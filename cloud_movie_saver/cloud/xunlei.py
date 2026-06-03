@@ -35,13 +35,10 @@ class XunleiCloud:
                 "Referer": "https://pan.xunlei.com/",
                 "Accept": "application/json, text/plain, */*",
             }
-            proxies = anti_crawl.get_proxies()
-            self._session = httpx.Client(
+            self._session = anti_crawl.create_httpx_client(
                 timeout=httpx.Timeout(30.0),
                 follow_redirects=True,
                 headers=headers,
-                proxies=proxies,
-                verify=False,
             )
             if self.cookie:
                 for item in self.cookie.split(";"):
