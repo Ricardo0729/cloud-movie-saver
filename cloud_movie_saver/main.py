@@ -552,6 +552,17 @@ def analyze(url: str, format: str):
         console.error(f"分析失败: {e}")
 
 
+@cli.command()
+def gui():
+    """🖥️ 启动图形界面"""
+    try:
+        from .gui_app import main as gui_main
+        gui_main()
+    except ImportError as e:
+        console.error(f"启动GUI失败: {e}")
+        console.info("确保 tkinter 已安装 (python自带)")
+
+
 # ============================================================
 # 辅助函数
 # ============================================================
