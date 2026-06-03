@@ -1,0 +1,60 @@
+# CloudMovieSaver 配置示例
+# 复制此文件为 config.yaml 并填入你的配置
+search:
+  timeout: 15
+  max_retries: 2
+  concurrent: 10
+  min_quality: "720p"
+  prefer_quality: "1080p"
+  source_priority:
+    - sogou
+    - bing
+    - baidu_search
+    - btdig
+    - dytt
+    - bttiantang
+    - ciligou
+    - btcat
+    - gaoding
+    - btbtdy
+    - 6vhao
+    - pianku
+  proxy:
+    enabled: false
+    http: ""
+    https: ""
+    socks5: ""
+  anti_crawl:
+    delay_min: 1.0
+    delay_max: 3.0
+    rotate_ua: true
+baidu:
+  bduss: ""
+  stoken: ""
+  save_path: "/已保存电影"
+  enabled: false
+quark:
+  cookie: ""
+  enabled: false
+xunlei:
+  cookie: ""
+  enabled: false
+tmdb:
+  api_key: ""
+  enabled: false
+  language: "zh-CN"
+categories:
+  动作: [动作, 犯罪, 警匪, Action]
+  喜剧: [喜剧, 搞笑, Comedy]
+  爱情: [爱情, 浪漫, Romance]
+  科幻: [科幻, 奇幻, Sci-Fi]
+  恐怖: [恐怖, 惊悚, Horror]
+  动画: [动画, 动漫, Anime]
+  剧情: [剧情, 文艺, Drama]
+  纪录片: [纪录片, Documentary]
+  悬疑: [悬疑, 推理, Mystery]
+output:
+  show_magnet: true
+  show_cloud: true
+  max_results: 50
+  auto_open_browser: true
